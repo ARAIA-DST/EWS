@@ -1,0 +1,33 @@
+import { CONFIG } from './config.js';
+import {uuid} from './ui.js';
+const SESSION_KEY='araia.nc.session';
+const cache=new Map(),flight=new Map(),listeners=new Set();let session=null;
+try{session=JSON.parse(sessionStorage.getItem(SESSION_KEY));if(session?.expires<Date.now())session=null;}catch{}
+export function getSession(){return session;}
+export function onDataChange(fn){listeners.add(fn);return()=>listeners.delete(fn);}
+function setSession(value){session=value;sessionStorage.setItem(SESSION_KEY,JSON.stringify(value));}
+export function clearSession(){session=null;sessionStorage.removeItem(SESSION_KEY);cache.clear();flight.clear();for(let i=sessionStorage.length-1;i>=0;i--){const k=sessionStorage.key(i);if(k?.startsWith('nc.cache:'))sessionStorage.removeItem(k);}}
+const TAGS={bootstrap:['nc','signals','requests','plans','onboarding','config','users','attrition'],dashboard:['nc','signals','requests','plans','onboarding','config','attrition'],'nc.list':['nc','signals','requests','onboarding','config','users'],'onboarding.list':['nc','onboarding','signals','requests','config','users'],'nc.detail':['nc','signals','requests','plans','onboarding','conversations','config','attrition'],'requests.list':['nc','requests'],calendar:['nc','requests','config'],'plans.list':['nc','plans','signals','requests','config'],'conversations.list':['nc','conversations'],reminders:['nc','signals','requests','plans','onboarding','config','conversations','users'],leaderboard:['nc','signals','plans','conversations','attrition','users'],attrition:['nc','attrition'],report:['nc','signals','requests','plans','onboarding','config','attrition'],audit:['audit'],'users.list':['users'],balance:['requests','config']};
+const WRITES={'nc.save':['nc'],'signals.save':['signals'],'signals.import':['signals'],'onboarding.save':['onboarding','nc'],'checklist.set':['onboarding'],'onboarding.checkin':['onboarding'],'request.submit':['requests'],'request.decide':['requests','signals'],'conversation.save':['conversations'],'plan.create':['plans'],'item.set':['plans'],'plan.checkin':['plans'],'plan.close':['plans'],'attrition.create':['nc','attrition','plans'],'config.save':['config','signals'],'user.save':['users']};
+function keyFor(action,params){return'nc.cache:'+session.user.user_id+':'+session.token.slice(-10)+':'+action+':'+JSON.stringify(params);}
+function remember(k,value){cache.set(k,value);const protectedData=value.action==='nc.detail'&&value.params.tab==='conversations';if(!protectedData&&value.action!=='conversations.list'){try{sessionStorage.setItem(k,JSON.stringify(value));}catch{}}}
+function invalidate(tags){for(const [k,v] of cache){if((TAGS[v.action]||[]).some(t=>tags.includes(t))){cache.delete(k);sessionStorage.removeItem(k);}}for(let i=sessionStorage.length-1;i>=0;i--){const k=sessionStorage.key(i);if(!k?.startsWith('nc.cache:'))continue;try{const v=JSON.parse(sessionStorage.getItem(k));if((TAGS[v.action]||[]).some(t=>tags.includes(t)))sessionStorage.removeItem(k);}catch{sessionStorage.removeItem(k);}}}
+async function transport(action,params,{write=false,signal,requestId}={}){
+  if(action!=='login'&&(!session||session.expires<Date.now())){clearSession();throw Object.assign(new Error('Sesi berakhir. Silakan masuk kembali.'),{code:'AUTH'});}
+  if(session?.demo&&action!=='login'){const demo=await import('./demo.js');return demo.demoRequest(action,params,session);}
+  if(!CONFIG.API_URL)throw new Error('Backend belum dipasang. Ikuti README atau gunakan mode demo.');
+  if(!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/.test(CONFIG.API_URL))throw new Error('API_URL harus berupa URL Apps Script yang berakhir /exec.');
+  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),CONFIG.TIMEOUT_MS),abort=()=>controller.abort();signal?.addEventListener('abort',abort,{once:true});if(signal?.aborted)controller.abort();
+  try{const body={action,params,token:session?.token,requestId};let url=CONFIG.API_URL;const opts={method:write?'POST':'GET',credentials:'omit',redirect:'follow',signal:controller.signal};if(write){opts.headers={'Content-Type':'text/plain;charset=UTF-8'};opts.body=JSON.stringify(body);}else{const query=new URLSearchParams({action,params:JSON.stringify(params),token:session.token});url+='?'+query.toString();}const response=await fetch(url,opts);if(!response.ok)throw new Error('Backend merespons '+response.status+'. Coba lagi.');const data=await response.json();if(!data.ok)throw Object.assign(new Error(data.error?.message||'Request gagal.'),{code:data.error?.code});return data.data;
+  }catch(e){if(e.name==='AbortError'&&!signal?.aborted)throw new Error('Backend belum merespons dalam 25 detik. Periksa deployment, lalu coba lagi.');if(e instanceof TypeError)throw new Error('Koneksi backend gagal. Pastikan Web App dapat diakses Anyone dan URL /exec benar.');throw e;}finally{clearTimeout(timeout);signal?.removeEventListener('abort',abort);}
+}
+export async function login(username,password,demo=false){clearSession();let value;if(demo){const module=await import('./demo.js');value=module.demoLogin(username,password);value.demo=true;}else value=await transport('login',{username,password},{write:true});setSession(value);return value;}
+export async function logout(){try{if(session)await transport('logout',{}, {write:true});}finally{clearSession();}}
+export async function read(action,params={},options={}){
+  if(!session||session.expires<Date.now()){clearSession();throw Object.assign(new Error('Sesi berakhir. Silakan masuk kembali.'),{code:'AUTH'});}
+  const k=keyFor(action,params),ttl=(CONFIG.TTL[action]||CONFIG.TTL[action.includes('detail')?'detail':'list'])*1000;let value=cache.get(k);if(!value){try{value=JSON.parse(sessionStorage.getItem(k));if(value)cache.set(k,value);}catch{}}
+  const load=()=>{if(flight.has(k))return flight.get(k);const promise=transport(action,params,options).then(data=>{const old=cache.get(k);remember(k,{action,params,data,at:Date.now()});if(old&&JSON.stringify(old.data)!==JSON.stringify(data))listeners.forEach(fn=>fn({action,params,data}));return data;}).finally(()=>flight.delete(k));flight.set(k,promise);return promise;};
+  if(value&&!options.fresh){if(Date.now()-value.at>=ttl)load().catch(e=>{if(e.code==='AUTH')listeners.forEach(fn=>fn({action:'authExpired'}));});return value.data;}return load();
+}
+export async function write(action,params,options={}){const requestId=options.requestId||uuid();const data=await transport(action,params,{...options,write:true,requestId});const tags=action==='batch'?params.actions.flatMap(a=>WRITES[a.action]||[]):WRITES[action]||[];invalidate([...tags,'audit']);return data;}
+export function prefetch(action,params){read(action,params).catch(()=>{});}
