@@ -8,6 +8,8 @@ function save(){localStorage.setItem(KEY,JSON.stringify(db));}
 export function resetDemo(){db=globalThis.RetentionSeed.create();save();}
 export function demoLogin(username,password){const user=load().Users.find(u=>u.username===username&&C.TRUE(u.aktif));if(!user||password!=='demo12345')throw Object.assign(new Error('Mode demo: pilih akun contoh dan gunakan password demo12345.'),{code:'AUTH'});return{token:'demo_'+uuid(),expires:Date.now()+21600000,user:{user_id:user.user_id,username:user.username,nama:user.nama,role:user.role,area:user.area,...(user.role==='NC'?{nc_id:load().NC_User_Links.find(l=>l.user_id===user.user_id)?.nc_id}:{})}};}
 export async function demoRequest(action,params,session){await new Promise(r=>setTimeout(r,100));const current=load().Users.find(u=>u.user_id===session.user.user_id&&C.TRUE(u.aktif));if(!current)throw Object.assign(new Error('Akun demo tidak aktif.'),{code:'AUTH'});
+  if(action==='assistant.status')return{enabled:false,demo:true};
+  if(action==='assistant.generate')C.fail('GPT memerlukan backend dan konfigurasi Admin.','AI_NOT_CONFIGURED');
   if((action.startsWith('talent.')||action.startsWith('market.'))&&current.role==='NC')C.fail('Modul ini tidak tersedia untuk akun NC.','FORBIDDEN');
   if(action.startsWith('talent.')||action.startsWith('market.')){const addon=await import('./talent-demo.js');return addon.talentDemoRequest(action,params,session,db,next=>{localStorage.setItem(KEY,JSON.stringify(next));db=next;});}
   const draft=structuredClone(db),store=C.memoryStore(draft),scoped={...current,...(current.role==='NC'?{nc_id:draft.NC_User_Links.find(l=>l.user_id===current.user_id)?.nc_id}:{})},engine=C.createEngine(store,scoped);if(action==='logout')return{loggedOut:true};

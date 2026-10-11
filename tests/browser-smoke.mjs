@@ -28,7 +28,7 @@ async function nav(name){await page.locator('.sidebar nav').getByRole('link',{na
 async function noPageOverflow(label){assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),label+' causes page overflow');}
 await page.goto(root);await page.getByRole('button',{name:'Masuk',exact:true}).waitFor();assert.match(await page.title(),/NCUBATOR/);
 await page.screenshot({path:shots+'/login-desktop.png'});
-const start=calls.length;await login('admin');await heading('Dashboard');assert.deepEqual(calls.slice(start),['login','dashboard']);assert.equal(await page.locator('.sidebar nav a').count(),9);
+const start=calls.length;await login('admin');await heading('Dashboard');assert.deepEqual(calls.slice(start).filter(a=>!a.startsWith('assistant.')),['login','dashboard']);assert.equal(await page.locator('.sidebar nav a').count(),9);
 await nav('Database SPG');await heading('Database SPG');await page.locator('[data-t-photo]').first().waitFor({state:'visible'});assert.ok(await page.locator('[data-t-photo]').first().evaluate(img=>img.naturalWidth>0));await noPageOverflow('Talent desktop');
 await page.evaluate(()=>{const span=document.querySelector('.workspace-name span');span.textContent='PRATINJAU · DATA CONTOH — '+span.textContent;});await page.screenshot({path:shots+'/talent-desktop.png',fullPage:false});
 await page.getByRole('link',{name:first.nama,exact:true}).click();await heading(first.nama);await page.locator('[data-t-upload]').setInputFiles({name:'foto-qa.png',mimeType:'image/png',buffer:image});await page.locator('[data-t-photo]').waitFor({state:'visible'});await page.waitForFunction(()=>document.querySelector('[data-t-photo]')?.src.startsWith('data:image/jpeg'));

@@ -1,0 +1,40 @@
+// Browser QA with simulated Apps Script/OpenAI services, never a live GPT request.
+import assert from 'node:assert/strict';
+import {readFileSync,mkdirSync,writeFileSync} from 'node:fs';
+import {pathToFileURL,fileURLToPath} from 'node:url';
+import {spawn} from 'node:child_process';
+import {environment} from './talent-env.mjs';
+const {chromium}=await import(process.env.PLAYWRIGHT_MODULE?pathToFileURL(process.env.PLAYWRIGHT_MODULE).href:'playwright');
+const e=environment(),admin=e.login(),C=globalThis.RetentionCore;
+e.props.set('NCUBATOR_ASSISTANT_ENABLED','true');e.props.set('OPENAI_API_KEY','simulated-key');
+e.context.UrlFetchApp.fetch=(url,options)=>{const payload=JSON.parse(options.payload),facts=JSON.parse(payload.input);e.requests.push({facts});return{getResponseCode:()=>200,getContentText:()=>JSON.stringify({status:'completed',output:[{type:'message',content:[{type:'output_text',text:JSON.stringify({summary:'Insight untuk '+facts.module+'.',insights:[{title:'Prioritas '+facts.module,explanation:'Ringkasan fakta pada modul yang sedang dibuka.',recommendation:'Tinjau data dan tindak lanjut bersama penanggung jawab.',priority:'normal',evidence_ids:[]} ]})}]}]})};};
+e.req('user.save',{username:'assistant-nc',nama:'NC Contoh',role:'NC',nc_id:e.sheets.NC[1][0],password:'TestPassword123',aktif:true},admin.token,true);
+const port=4185,root='http://localhost:'+port,shots=process.env.QA_OUTPUT||'/tmp/ncubator-assistant-qa';mkdirSync(shots,{recursive:true});
+const server=spawn(process.execPath,[fileURLToPath(new URL('../scripts/dev-server.mjs',import.meta.url)),'--port',String(port)],{stdio:['ignore','pipe','inherit']});process.once('exit',()=>server.kill());await new Promise((resolve,reject)=>{server.stdout.once('data',resolve);server.once('error',reject);});
+const browser=await chromium.launch({headless:true,...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{}),args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu','--disable-software-rasterizer']});
+const page=await browser.newPage({viewport:{width:1600,height:1000}}),errors=[],calls=[];let failGPT=false,slowGPT=false,busyOnce=false;
+page.on('pageerror',err=>errors.push(err.message));
+await page.route('**/js/config.js',r=>r.fulfill({contentType:'text/javascript',body:readFileSync(new URL('../js/config.js',import.meta.url),'utf8').replace("API_URL: ''","API_URL: 'https://script.google.com/macros/s/ASSISTANT_QA/exec'")}));
+await page.route('https://script.google.com/macros/s/ASSISTANT_QA/exec**',async r=>{const req=r.request(),payload=req.method()==='POST'?JSON.parse(req.postData()):Object.fromEntries(new URL(req.url()).searchParams),params=typeof payload.params==='string'?JSON.parse(payload.params):payload.params||{};calls.push(payload.action);
+  if(payload.action==='assistant.generate'&&slowGPT)await new Promise(resolve=>setTimeout(resolve,1800));
+  const busy=payload.action==='assistant.generate'&&busyOnce;if(busy)busyOnce=false;
+  const result=busy?{ok:false,error:{code:'BUSY',message:'Simulasi antrean GPT.'}}:payload.action==='assistant.generate'&&failGPT?{ok:false,error:{code:'AI_PROVIDER',message:'Simulasi gangguan GPT.'}}:e.req(payload.action,params,payload.token,req.method()==='POST',payload.requestId);
+  try{await r.fulfill({status:200,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},body:JSON.stringify(result)});}catch(err){if(!req.failure())throw err;}
+});
+async function login(username){await page.getByLabel('Username',{exact:true}).fill(username);await page.getByLabel('Password',{exact:true}).fill('TestPassword123');await page.getByRole('button',{name:'Masuk',exact:true}).click();await page.locator('.sidebar').waitFor();}
+async function open(route,module,gpt=true){/* Each scenario starts outside the previous module cooldown; rate limiting is covered by API tests. */for(const key of e.cache.keys())if(key.startsWith('assistant:recent:'))e.cache.delete(key);await page.evaluate(r=>{location.hash='#/'+r;},route);await page.locator('#assistant-panel .assistant-context>span').first().filter({hasText:module}).waitFor();await page.locator('#view h1').waitFor();if(gpt)await page.locator('#assistant-panel .assistant-source').filter({hasText:'GPT Insight'}).waitFor();assert.equal(await page.locator('#assistant-panel .assistant-toggle').getAttribute('aria-expanded'),'true');assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));}
+try{
+  await page.goto(root);assert.equal(await page.locator('.assistant-panel').count(),0);await login('admin');await open('dashboard','Dashboard');
+  assert.equal(await page.locator('.ncubator-mark').count(),0);assert.ok(await page.locator('.araia-brand-logo').evaluate(img=>img.naturalWidth>0));
+  await page.screenshot({path:shots+'/dashboard-assistant-desktop.png'});
+  await page.getByRole('button',{name:'Perkecil AI Assistant',exact:true}).click();assert.equal(await page.locator('.assistant-body').isVisible(),false);
+  const before=e.requests.length;await open('market','Competitor & Market');await page.screenshot({path:shots+'/market-assistant-desktop.png'});assert.ok(e.requests.length>before);
+  await open('market?tab=market','Competitor & Market');await open('market?tab=experience','Competitor & Market');
+  for(const [route,module] of [['talent','Database SPG'],['onboarding','Onboarding'],['team','Tim NC'],['requests','Izin & Cuti'],['requests?mode=calendar','Izin & Cuti'],['early-warning','Risiko'],['conversations','Percakapan'],['plans','Action plan'],['reminders','Tindak lanjut'],['readiness','Kesiapan NC baru'],['reports','Laporan bulanan'],['retention','Papan retensi'],['attrition','Resign'],['talent-insights','Analytics & AI'],['users','Akun & akses'],['settings','Pengaturan'],['audit','Audit log']])await open(route,module);
+  busyOnce=true;await open('signals','Input sinyal');assert.equal(busyOnce,false);await page.setViewportSize({width:390,height:844});assert.ok(await page.locator('.mobile-araia-logo').isVisible());assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await page.screenshot({path:shots+'/signals-assistant-mobile.png'});
+  await page.setViewportSize({width:1600,height:1000});failGPT=true;await open('team?status=Low','Tim NC',false);await page.locator('.assistant-status').filter({hasText:'Simulasi gangguan GPT'}).waitFor();assert.ok(await page.locator('#view h1').isVisible());assert.equal(await page.locator('.assistant-card').count()>0,true);failGPT=false;
+  slowGPT=true;await open('team?status=High','Tim NC',false);await page.waitForTimeout(700);await open('dashboard','Dashboard');await page.waitForTimeout(2000);assert.ok((await page.locator('.assistant-summary').innerText()).includes('Dashboard'));slowGPT=false;
+  await page.getByRole('button',{name:'Keluar',exact:true}).click();await page.getByRole('button',{name:'Masuk',exact:true}).waitFor();assert.equal(await page.locator('.assistant-panel').count(),0);await login('viewer');await open('market','Competitor & Market');assert.equal(await page.locator('[data-t-action="daily-form"]').count(),0);
+  await page.getByRole('button',{name:'Keluar',exact:true}).click();await page.getByRole('button',{name:'Masuk',exact:true}).waitFor();await login('assistant-nc');for(const [route,module] of [['self-home','Beranda Saya'],['self-training','Onboarding Saya'],['self-requests','Pengajuan Saya'],['self-tasks','Tugas Saya']])await open(route,module);
+  assert.deepEqual(errors,[]);const report={status:'passed',backend:'simulated Apps Script and GPT, no external call',checks:['automatic per-module display','all allowed admin modules and market tabs','minimize/reopen on module change','desktop/mobile original logo','nonblocking GPT failure','stale navigation result ignored','Client read-only','own NC modules','logout clears insights','no page overflow or browser error'],providerCalls:e.requests.length,statusCalls:calls.filter(a=>a==='assistant.status').length};writeFileSync(shots+'/assistant-results.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report));
+}finally{await browser.close();server.kill();}

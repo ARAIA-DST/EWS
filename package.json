@@ -1,6 +1,6 @@
 {
   "name": "ncubator",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "private": true,
   "type": "module",
   "scripts": { "dev": "node scripts/dev-server.mjs", "test": "node --test tests/*.test.mjs" }

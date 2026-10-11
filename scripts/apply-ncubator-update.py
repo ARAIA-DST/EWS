@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Upgrade recognized Araia sources to NCUBATOR 3.0 without replacing API_URL."""
+"""Upgrade recognized Araia sources to NCUBATOR 3.0.1 without replacing API_URL."""
 import argparse
 import hashlib
 import json
@@ -41,7 +41,7 @@ def main():
     if errors:raise SystemExit('No files changed.\n'+'\n'.join(errors))
     configured=None;config=target/'js/config.js'
     if config.is_file():
-        configured,count=re.subn(r"(VERSION\s*:\s*)['\"][^'\"]+['\"]",r"\g<1>'3.0.0'",config.read_text(),count=1)
+        configured,count=re.subn(r"(VERSION\s*:\s*)['\"][^'\"]+['\"]",r"\g<1>'3.0.1'",config.read_text(),count=1)
         if count!=1:raise SystemExit('No files changed. Update VERSION manually in the custom js/config.js before integration.')
         if configured==config.read_text():updates=[rel for rel in updates if rel!='js/config.js']
     if not updates:print('NCUBATOR files are already current.');return
@@ -53,6 +53,6 @@ def main():
         else:shutil.copy2(source/rel,out)
     print('NCUBATOR source applied; existing API_URL and public configuration preserved.')
     print('Backup: '+str(backup))
-    print('Update Apps Script, run setupNCUBATOR, deploy a new Web App version, then update GitHub Pages. See docs/NCUBATOR_UPGRADE.md.')
+    print('Update the existing Apps Script deployment and frontend. Existing V3: no setup/seed; see docs/ASSISTANT_UPDATE.md. Earlier versions: follow docs/NCUBATOR_UPGRADE.md.')
 
 if __name__=='__main__':main()

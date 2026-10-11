@@ -1,0 +1,34 @@
+/* Additive assistant layout; existing module markup and navigation stay intact. */
+.sidebar-logo .araia-brand-logo{display:block;width:56px;height:40px;object-fit:contain;background:#fff;border-radius:8px;padding:3px;flex:none}
+.mobile-araia-logo{display:none}
+.assistant-workspace{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:22px;align-items:start}
+.assistant-workspace #view{min-width:0}
+.assistant-panel{position:sticky;top:24px;min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;color:var(--text)}
+.assistant-header{display:flex;align-items:center;gap:10px;padding:20px 18px 14px}
+.assistant-symbol{display:grid;place-items:center;width:32px;height:32px;background:var(--blue-tint);color:var(--blue);border-radius:10px;font-size:21px;flex:none}
+.assistant-header>div{flex:1;min-width:0}
+.assistant-header h2{font-size:14px;color:var(--title);line-height:1.5}
+.assistant-header p{font-size:10px;color:var(--muted);margin-top:2px}
+.assistant-toggle{border:0;background:transparent;color:var(--muted);min-width:30px;min-height:30px;border-radius:7px;cursor:pointer;font-size:20px}
+.assistant-toggle:focus-visible,.assistant-retry:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.assistant-body{padding:0 16px 18px}
+.assistant-body[hidden]{display:none}
+.assistant-context{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:0 2px 12px;font-size:11px;font-weight:600}
+.assistant-source{font-size:9px;font-weight:500;background:var(--blue-tint);color:var(--blue);padding:4px 7px;border-radius:6px;white-space:nowrap}
+.assistant-card{background:var(--surface2);border:1px solid var(--border);padding:14px;border-radius:12px;margin-top:10px}
+.assistant-priority{display:table;margin:0 0 10px auto;font-size:9px;font-weight:600;padding:3px 6px;border-radius:5px;background:var(--blue-tint);color:var(--blue)}
+.assistant-priority.high{background:#fff0ee;color:#b53d37}.assistant-priority.attention{background:#fff6df;color:#885c0b}
+.assistant-card h3{font-size:12px;font-weight:650;line-height:1.5;color:var(--title)}
+.assistant-card p{font-size:11px;line-height:1.75;margin-top:7px;overflow-wrap:anywhere}
+.assistant-card .assistant-recommendation{color:var(--muted);border-top:1px solid var(--border);padding-top:8px;margin-top:10px}
+.assistant-basis,.assistant-notice{font-size:10px;color:var(--muted);line-height:1.7;margin:12px 2px 0;overflow-wrap:anywhere}
+.assistant-status{font-size:10px;line-height:1.6;color:var(--muted);margin:10px 2px 0}
+.assistant-retry{border:1px solid var(--border);background:var(--surface);color:var(--blue);font-size:10px;padding:5px 8px;border-radius:6px;cursor:pointer;margin-top:8px}
+.assistant-summary{font-size:11px;line-height:1.75;margin:12px 2px}
+.assistant-panel.collapsed .assistant-header{padding-bottom:20px}
+.assistant-workspace:has(>.assistant-panel.collapsed){grid-template-columns:minmax(0,1fr) 210px}
+.drawer .assistant-panel{position:static;margin:0 0 18px}
+@media(max-width:1280px){.assistant-workspace{grid-template-columns:minmax(0,1fr) 250px;gap:16px}}
+@media(max-width:1100px){.assistant-workspace,.assistant-workspace:has(>.assistant-panel.collapsed){display:flex;flex-direction:column}.assistant-workspace #view,.assistant-workspace>.assistant-panel{width:100%}.assistant-workspace>.assistant-panel{position:static;order:-1;margin-bottom:4px}.assistant-body{max-height:340px;overflow:auto}.assistant-header{padding:14px 16px 10px}.assistant-card{padding:12px}.assistant-panel.collapsed .assistant-header{padding-bottom:14px}}
+@media(max-width:640px){.mobile-araia-logo{display:block;object-fit:contain;width:46px;height:30px;background:#fff;padding:2px;border-radius:5px;float:left;margin-right:10px;margin-top:3px}.workspace-name span{max-width:150px}.assistant-context{font-size:10px}.assistant-body{max-height:245px}.assistant-header h2{font-size:13px}}
+@media print{.assistant-panel{display:none!important}.assistant-workspace{display:block}}
