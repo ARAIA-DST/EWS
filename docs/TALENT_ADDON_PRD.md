@@ -1,6 +1,6 @@
 # Addendum PRD — Talent, Competitor & Market, AI Insight
 
-11 Oktober 2026 · Add-on 2.1.0 untuk NC Retention V1.
+11 Oktober 2026 · Add-on 2.1.1 untuk NC Retention V1.
 
 ## Tujuan dan batas perubahan
 
@@ -77,3 +77,5 @@ AI menerima angka agregat dan kategori; tidak menerima nama individu, kontak, fo
 Seluruh 20 tes V1 tetap lulus; import 1.000 profil dan pembaruan tidak menggandakan data; baris invalid menolak import sebelum commit; konversi mempertahankan NC lama; duplicate request tidak membuat NC kedua; foto membutuhkan token dan scope; Supervisor/Viewer tidak dapat melewati izin; AI payload tidak membawa data pribadi; hasil AI mock disimpan; render baru memperlihatkan dependensi AI yang belum aktif; demo mendukung beberapa konversi dan refresh data NC lama. Deployment dan browser nyata diuji pemilik setelah pemasangan.
 
 Pembaruan 2.1 mempertahankan seluruh 30 file V1 pada byte yang sama dengan paket add-on 2.0. Installer memverifikasi hash V1/add-on sebelumnya, mencadangkan file yang diperbarui dan menolak modifikasi khusus sebelum penulisan. Laporan harian hanya menambah dua sheet; tidak memakai trigger atau notifikasi eksternal baru. Pengujian mencakup alur tinjauan, invalid/stale write, scope, receipt, redaksi AI, render, CSV dan persistensi demo.
+
+Patch 2.1.1: logical assignment di memoryStore dihapus dan Array.at diganti. Inisialisasi tabel tetap null/undefined saja dan mempertahankan referensi data yang sudah ada. Tidak menambah atau mengubah tabel. File GS diparse dengan batas sintaks konservatif ECMAScript 2020, yang mereproduksi error baris 226 pada source 2.1.0.

@@ -1,6 +1,6 @@
 # Tambahan Database SPG, Competitor & Market, AI Insight
 
-Versi add-on 2.1.0 · 11 Oktober 2026. Aplikasi NC Retention tetap memakai aturan dan tampilan V1.
+Versi add-on 2.1.1 · 11 Oktober 2026. Aplikasi NC Retention tetap memakai aturan dan tampilan V1.
 
 **Mulai dari sini untuk aplikasi yang sudah terpasang:** simpan cadangan source, tambahkan file baru, pasang hook frontend/backend, jalankan `setupTalentAddon`, lalu deploy versi backend baru. Pertahankan `API_URL` yang sudah Anda isi. Tidak perlu menjalankan ulang seed demo.
 
@@ -13,6 +13,14 @@ Versi add-on 2.1.0 · 11 Oktober 2026. Aplikasi NC Retention tetap memakai atura
 | AI Insight & Analytics | Distribusi talent, kesiapan kandidat, pencocokan kandidat, prioritas retensi, rekap laporan harian TL, analisis otomatis dan insight AI melalui penyedia yang dikonfigurasi |
 
 **Data asli 1.000 SPG dan foto belum diberikan.** Modul produksi mulai kosong. Import menerima data Araia; tidak mengisi nama, pengalaman atau foto rekaan. Jumlah profil keseluruhan boleh lebih dari 1.000; batas 1.000 berlaku per import. Pengujian kapasitas menggunakan data uji di folder tests, yang tidak dimasukkan ke database aplikasi.
+
+## Perbaikan error TalentCore.gs baris 226
+
+Paket 2.1.1 mengganti dua penggunaan operator logical assignment `??=` pada memoryStore dengan inisialisasi eksplisit. Pemanggilan `Array.at()` dalam benchmark juga diganti dengan `slice(-1)[0]`. Skema, hak akses, data, aturan dan fitur tetap menggunakan perilaku sebelumnya.
+
+Untuk error **Unexpected token = line 226**, cukup ganti seluruh isi **TalentCore.gs** di editor Apps Script dengan isi file pengganti **TalentCore_FIX.gs**, lalu simpan. Nama file di proyek tetap **TalentCore.gs**. Setelah penyimpanan berhasil, lanjutkan **setupTalentAddon** bila sebelumnya tertahan saat pemasangan, lalu deploy **New version** pada deployment yang sama.
+
+Jika menggunakan source GitHub, perbarui **shared/talent-core.js** dengan versi dari paket terbaru agar source frontend/backend sama. Semua file `.gs` telah diperiksa dengan parsing konservatif ECMAScript 2020. Pemeriksaan ini mendeteksi kegagalan baris 226 pada paket sebelumnya, tetapi tidak menggantikan pengujian langsung di akun Apps Script pengguna.
 
 ## Jika add-on 2.0.0 sudah terpasang
 
@@ -50,7 +58,7 @@ Tidak ada perubahan pada formula skor, warna risiko, fungsi setup V1, trigger ha
 python scripts/apply-talent-addon.py --target "/path/folder-aplikasi-yang-sudah-ada"
 ```
 
-Jalankan dari folder hasil ekstrak add-on. Script mengenali source V1 dan add-on 2.0.0 yang pernah diberikan, serta menolak file dengan modifikasi khusus sebelum menulis. Cadangan file yang diperbarui dibuat di folder dengan akhiran `-before-talent-addon-2.1`; config dan file V1 lainnya dipertahankan. Untuk pengguna GitHub melalui browser, gunakan langkah salin file di atas.
+Jalankan dari folder hasil ekstrak add-on. Script mengenali source V1 dan add-on 2.0.0/2.1.0 yang pernah diberikan, serta menolak file dengan modifikasi khusus sebelum menulis. Cadangan file yang diperbarui dibuat di folder dengan akhiran `-before-talent-addon-2.1.1`; config dan file V1 lainnya dipertahankan. Untuk pengguna GitHub melalui browser, gunakan langkah salin file di atas.
 
 ## 2. Tambahkan backend di proyek Apps Script yang sama
 
