@@ -2,6 +2,7 @@ import '../shared/core.js';
 import {CONFIG} from './config.js';
 import * as api from './api.js';
 import * as V from './views.js';
+import * as Talent from './talent-addon.js';
 import {makeForm,formPayload,parseImport,actionItemHTML} from './forms.js';
 import {esc,fmtDate,icon,toast,skeleton,button,downloadCSV,empty,uuid,copyText} from './ui.js';
 const C=globalThis.RetentionCore,app=document.getElementById('app'),overlay=document.getElementById('overlay-root');
@@ -12,7 +13,7 @@ function routeInfo(){const raw=location.hash.replace(/^#\/?/,'')||'dashboard',[p
 function navigate(route){location.hash='#/'+route;}
 function querySet(key,value){const r=routeInfo(),p=new URLSearchParams(r.params);value?p.set(key,value):p.delete(key);if(!['page','mode'].includes(key))p.delete('page');const path=r.route==='nc'?`nc/${encodeURIComponent(r.id)}/${r.tab}`:r.route;history.replaceState(null,'','#/'+path+(p.size?'?'+p.toString():''));renderRoute();}
 function handleError(e,target){if(e.name==='AbortError')return;if(e.code==='AUTH'){api.clearSession();showLogin(e.message);return;}if(target)target.innerHTML=`<div class="error" role="alert">${esc(e.message)}<div class="btn-row" style="margin-top:12px">${button('Coba lagi','retry','','')}</div></div>`;else toast(e.message);}
-function showLogin(message=''){state.ctx=null;closeOverlay();app.innerHTML=V.loginView();if(message){const el=document.getElementById('login-error');el.hidden=false;el.textContent=message;}}
+function showLogin(message=''){state.ctx=null;Talent.close();closeOverlay();app.innerHTML=V.loginView();if(message){const el=document.getElementById('login-error');el.hidden=false;el.textContent=message;}}
 async function start(){const session=api.getSession();if(!session){showLogin();return;}try{const data=await api.read('bootstrap');state.ctx={...data,demo:session.demo||false};await renderRoute();}catch(e){api.clearSession();showLogin(e.message);}}
 function preserveFocus(){const active=document.activeElement;if(active?.dataset.filter)return{key:active.dataset.filter,start:active.selectionStart,end:active.selectionEnd};return null;}
 function restoreFocus(f){if(!f)return;const input=[...document.querySelectorAll('[data-filter]')].find(e=>e.dataset.filter===f.key);input?.focus({preventScroll:true});if(input?.type==='text'||input?.tagName==='INPUT'&&!['month','number','date'].includes(input.type))try{input.setSelectionRange(f.start,f.end);}catch{}}
@@ -25,6 +26,7 @@ async function renderRoute(options={}){
   }
   closeOverlay();app.innerHTML=V.shell(state.ctx,info.route);const view=document.getElementById('view');view.innerHTML=skeleton();const ctx=state.ctx,read=(a,params=p)=>api.read(a,params,{signal,...options});let html,d,primary=[];
   try{
+    if(Talent.handles(info.route)){await Talent.render(view,{ctx,route:info.route,id:info.id,p:{...p,pageSize:20},signal,onConverted:async()=>{state.ctx={...(await api.read('bootstrap',{}, {fresh:true})),demo:api.getSession().demo||false};}});return;}
     switch(info.route){
       case'dashboard':d=await read('dashboard',{});html=V.dashboardView(d,ctx);primary=d.actions;break;
       case'early-warning':d=await read('nc.list');html=V.earlyWarningView(d,ctx,p);primary=d.rows;break;
@@ -99,5 +101,5 @@ document.addEventListener('input',e=>{const input=e.target;if(input.dataset.filt
 document.addEventListener('change',e=>{const el=e.target;if(el.dataset.filter&&(el.tagName==='SELECT'||['month','date'].includes(el.type))){clearTimeout(searchTimer);searchTimer=setTimeout(()=>querySet(el.dataset.filter,el.value),300);}if(el.hasAttribute('data-request-type')){const kinds=el.value==='izin'?['Sakit','Keperluan keluarga','Dinas/lainnya']:['Tahunan','Melahirkan','Menikah','Lainnya'];el.form.elements.jenis.innerHTML=kinds.map(k=>`<option>${k}</option>`).join('');}});
 document.addEventListener('keydown',e=>{if(!overlay.children.length)return;if(e.key==='Escape'){if(document.getElementById('form-layer'))cancelForm();else if(overlay.querySelector('.drawer')){closeOverlay();navigate('early-warning');}else closeOverlay();}if(e.key==='Tab'){const layer=overlay.querySelector('#form-layer .modal')||overlay.querySelector('.modal,.drawer'),items=[...layer.querySelectorAll('a[href],button:not(:disabled),input:not(:disabled):not([type=hidden]),select:not(:disabled),textarea:not(:disabled)')].filter(n=>n.offsetParent!==null);if(!items.length)return;const first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
 window.addEventListener('hashchange',()=>renderRoute());
-api.onDataChange(({action})=>{if(action==='authExpired'){showLogin('Sesi berakhir. Silakan masuk kembali.');return;}if(!document.getElementById('action-form')){clearTimeout(refreshTimer);refreshTimer=setTimeout(()=>renderRoute(),150);}});
+api.onDataChange(({action})=>{if(action==='authExpired'){showLogin('Sesi berakhir. Silakan masuk kembali.');return;}if(!document.getElementById('action-form')&&!document.getElementById('t-addon-form')){clearTimeout(refreshTimer);refreshTimer=setTimeout(()=>renderRoute(),150);}});
 start();

@@ -1,0 +1,152 @@
+{
+  ".gitignore": {
+    "baseline_sha256": "6b9a050fbfbd06aa8a63e2e258874a1bf433513b973eee0bd42020d74e0cbb37",
+    "addon_sha256": "6b9a050fbfbd06aa8a63e2e258874a1bf433513b973eee0bd42020d74e0cbb37",
+    "changed": false
+  },
+  ".nojekyll": {
+    "baseline_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "addon_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "changed": false
+  },
+  "README.md": {
+    "baseline_sha256": "02f74b9d2c2dbd1bb0804998429f8f436c86ef975b4eda6c049abfc1d028339b",
+    "addon_sha256": "02f74b9d2c2dbd1bb0804998429f8f436c86ef975b4eda6c049abfc1d028339b",
+    "changed": false
+  },
+  "apps-script/Admin.gs": {
+    "baseline_sha256": "cfa13aa503d95acf72725b9fc3b4969ef0fee9e9b445d596fd76388741eda488",
+    "addon_sha256": "cfa13aa503d95acf72725b9fc3b4969ef0fee9e9b445d596fd76388741eda488",
+    "changed": false
+  },
+  "apps-script/Code.gs": {
+    "baseline_sha256": "51d4f0a5cddfc39e058214ef9a8d6475932b88a64f1e7dc9b5dbaf425fb1d6ea",
+    "addon_sha256": "df0f5e6dbb4714c2e0d8691f889e00148d8dcd0c01ff886493a9717919ee2214",
+    "changed": true
+  },
+  "apps-script/Core.gs": {
+    "baseline_sha256": "77fc060bbec1311b1146b6253a4c6b4073b11eb09bdc17a5fd6df6e74523e6d0",
+    "addon_sha256": "77fc060bbec1311b1146b6253a4c6b4073b11eb09bdc17a5fd6df6e74523e6d0",
+    "changed": false
+  },
+  "apps-script/Seed.gs": {
+    "baseline_sha256": "98f61293839bed509a7efb61425dee04a530b079d6e4450717b052685ee9bbea",
+    "addon_sha256": "98f61293839bed509a7efb61425dee04a530b079d6e4450717b052685ee9bbea",
+    "changed": false
+  },
+  "apps-script/Storage.gs": {
+    "baseline_sha256": "5bf10d2252843d6a66aff99111ed1de7510f5c2ffa7fe64b5d17f01303e2d131",
+    "addon_sha256": "5bf10d2252843d6a66aff99111ed1de7510f5c2ffa7fe64b5d17f01303e2d131",
+    "changed": false
+  },
+  "apps-script/appsscript.json": {
+    "baseline_sha256": "a49c1f714646b1620f7a74d672c0cbc1543eb01980a65ba175dffacf10445be0",
+    "addon_sha256": "1d8378e50755dc4045eaf65dd8a857313f278f7c13ea3dcf1c1021dc7f6b004c",
+    "changed": true
+  },
+  "assets/araia-new.png": {
+    "baseline_sha256": "e26400ee0757d73fdb41f96372a4a2e5972e75fcc50a0c485a2273214cb03bed",
+    "addon_sha256": "e26400ee0757d73fdb41f96372a4a2e5972e75fcc50a0c485a2273214cb03bed",
+    "changed": false
+  },
+  "css/styles.css": {
+    "baseline_sha256": "be2c7401bf3c73dfb0732796b79b15e2482ba91821cdfae1b537981d79b6f9d1",
+    "addon_sha256": "be2c7401bf3c73dfb0732796b79b15e2482ba91821cdfae1b537981d79b6f9d1",
+    "changed": false
+  },
+  "docs/API.md": {
+    "baseline_sha256": "722bbe80d6c70d874a95749166874bfc5c2cea9f2b7cc1c26f69483ccec91b82",
+    "addon_sha256": "722bbe80d6c70d874a95749166874bfc5c2cea9f2b7cc1c26f69483ccec91b82",
+    "changed": false
+  },
+  "docs/ARCHITECTURE.md": {
+    "baseline_sha256": "cfe63d88feb09ec5cf2c7852f13f6728fd89cee3f685075f3563e8a3dfbe8e64",
+    "addon_sha256": "cfe63d88feb09ec5cf2c7852f13f6728fd89cee3f685075f3563e8a3dfbe8e64",
+    "changed": false
+  },
+  "docs/PRD.md": {
+    "baseline_sha256": "47c6f888bf9b3f085173577bb2680328aa92ed1faceff46a7e8381513199572b",
+    "addon_sha256": "47c6f888bf9b3f085173577bb2680328aa92ed1faceff46a7e8381513199572b",
+    "changed": false
+  },
+  "docs/QA.md": {
+    "baseline_sha256": "fb342aaf55e6965ab26b04dc76c6f7e1eefa48eaf5a3c2759bfa1b70ec674306",
+    "addon_sha256": "fb342aaf55e6965ab26b04dc76c6f7e1eefa48eaf5a3c2759bfa1b70ec674306",
+    "changed": false
+  },
+  "index.html": {
+    "baseline_sha256": "d30bd0d70d0dbce8eb3c141ff0574da0426da46e92ced89358ce7948f8085d91",
+    "addon_sha256": "d30bd0d70d0dbce8eb3c141ff0574da0426da46e92ced89358ce7948f8085d91",
+    "changed": false
+  },
+  "js/api.js": {
+    "baseline_sha256": "abfb874a73c6aa4e5b1f29048e419ce4279c1957129f3448e1151766bfc97063",
+    "addon_sha256": "349e00f0019f792adf49aac25b243526269e10d1a25d433d96623be77aa49815",
+    "changed": true
+  },
+  "js/app.js": {
+    "baseline_sha256": "b6735d60eb2e39df0fd67c1b8d547bde542d1248c612afe9152c747df430e087",
+    "addon_sha256": "46b415bff2ce7ced09a073a24f89f17288ec970bbd36e9568229b44ee6cff0f5",
+    "changed": true
+  },
+  "js/config.js": {
+    "baseline_sha256": "0ab1f995d9e8e718f956d99d1ad5000086e2c3b772f5de87ad8096a44df51654",
+    "addon_sha256": "0ab1f995d9e8e718f956d99d1ad5000086e2c3b772f5de87ad8096a44df51654",
+    "changed": false
+  },
+  "js/demo.js": {
+    "baseline_sha256": "59ae4f0d5ed567605c99994635d0c1b89dd10cf7a4a50934c06d91e0adf9a4f1",
+    "addon_sha256": "1aeddfa6ba7a981ff3c0b6f07a4fc12b7cdb59f1772c5fa16d6235f10403a150",
+    "changed": true
+  },
+  "js/forms.js": {
+    "baseline_sha256": "a7873a14dd615030439741aee92d595843af1a4cedf133f86264a1de62fd51df",
+    "addon_sha256": "a7873a14dd615030439741aee92d595843af1a4cedf133f86264a1de62fd51df",
+    "changed": false
+  },
+  "js/ui.js": {
+    "baseline_sha256": "7dd23797efb7c29f4495cee18ca869efd1dfce852cb1ee3e5932ba11a0167cd6",
+    "addon_sha256": "7dd23797efb7c29f4495cee18ca869efd1dfce852cb1ee3e5932ba11a0167cd6",
+    "changed": false
+  },
+  "js/views.js": {
+    "baseline_sha256": "6fbb8da7c8ef42b082bc22561b4ba0e1f1717235f0cb83bc6f94669dc1277ab0",
+    "addon_sha256": "6fbb8da7c8ef42b082bc22561b4ba0e1f1717235f0cb83bc6f94669dc1277ab0",
+    "changed": false
+  },
+  "package.json": {
+    "baseline_sha256": "59ab5489cbdf0b9aa6f762e452fc520ced43827fc1ee186771b0ef77d8ef0267",
+    "addon_sha256": "59ab5489cbdf0b9aa6f762e452fc520ced43827fc1ee186771b0ef77d8ef0267",
+    "changed": false
+  },
+  "scripts/dev-server.mjs": {
+    "baseline_sha256": "d0c22bc83242af00aa5523bbf41797238c71c9020329723332122e39a931c190",
+    "addon_sha256": "d0c22bc83242af00aa5523bbf41797238c71c9020329723332122e39a931c190",
+    "changed": false
+  },
+  "shared/core.js": {
+    "baseline_sha256": "77fc060bbec1311b1146b6253a4c6b4073b11eb09bdc17a5fd6df6e74523e6d0",
+    "addon_sha256": "77fc060bbec1311b1146b6253a4c6b4073b11eb09bdc17a5fd6df6e74523e6d0",
+    "changed": false
+  },
+  "shared/seed.js": {
+    "baseline_sha256": "98f61293839bed509a7efb61425dee04a530b079d6e4450717b052685ee9bbea",
+    "addon_sha256": "98f61293839bed509a7efb61425dee04a530b079d6e4450717b052685ee9bbea",
+    "changed": false
+  },
+  "tests/backend.test.mjs": {
+    "baseline_sha256": "ac7b71b36d9bf451d3d1c5bf3d62696b2604935061baf162a04f1814184c6d97",
+    "addon_sha256": "ac7b71b36d9bf451d3d1c5bf3d62696b2604935061baf162a04f1814184c6d97",
+    "changed": false
+  },
+  "tests/core.test.mjs": {
+    "baseline_sha256": "cf2453042f801d355aaabd10da98502f1a8821f523066bdfaf5325ab3cd2376d",
+    "addon_sha256": "cf2453042f801d355aaabd10da98502f1a8821f523066bdfaf5325ab3cd2376d",
+    "changed": false
+  },
+  "tests/responsive-preview.html": {
+    "baseline_sha256": "dff256a2246700de8f863503a8f8a5991df555cad6f7904331a87f3a101d8321",
+    "addon_sha256": "dff256a2246700de8f863503a8f8a5991df555cad6f7904331a87f3a101d8321",
+    "changed": false
+  }
+}
